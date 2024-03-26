@@ -42,13 +42,20 @@ def stop_recording_and_save():
     print("Transcription:", transcript)
     return transcript
 
-def speech_to_text():
-    input("Press Enter to start recording.\n")
-    start_recording()
-    input("Recording... Press Enter to stop.\n")
-    text = stop_recording_and_save()
-    print('text: ', text)
-    return text
+# def speech_to_text():
+#     input("Press Enter to start recording.\n")
+#     start_recording()
+#     input("Recording... Press Enter to stop.\n")
+#     text = stop_recording_and_save()
+#     print('text: ', text)
+#     return text
+
+def speech_to_text(file_path):
+    # Assuming file_path is a path to the audio file you want to transcribe
+    result = model.transcribe(file_path)
+    transcript = result["text"]
+    print("Transcription:", transcript)
+    return transcript
 
 recording_thread = threading.Thread(target=record, daemon=True)
 recording_thread.start()

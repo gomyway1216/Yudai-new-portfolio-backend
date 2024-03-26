@@ -37,17 +37,21 @@ def text_to_speech(text):
         json=audio_query,
     )
 
+    print('voice vox response: ', response)
+
     # Display error message if status code is not 200
     if response.status_code != 200:
         print("An error occurred. Status code: {}".format(response.status_code))
         print(response.text)
     else:
-        # Obtain audio data
-        audio = response.content
+        # # Obtain audio data
+        # audio = response.content
 
-        # Play the audio data in a separate thread without saving to a file
-        audio_thread = threading.Thread(target=play_audio_from_bytes, args=(audio,))
-        audio_thread.start()
+        # # Play the audio data in a separate thread without saving to a file
+        # audio_thread = threading.Thread(target=play_audio_from_bytes, args=(audio,))
+        # audio_thread.start()
+
+        return response.content
 
 if __name__ == "__main__":
     # Text to convert to speech
