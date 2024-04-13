@@ -1,12 +1,6 @@
 from openai import OpenAI
 from text_to_speech import text_to_speech
 from speech_to_text import speech_to_text
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key)
 
 # Prepare the template
 template = """あなたは猫のキャラクターとして振る舞うチャットボットです。
@@ -17,12 +11,17 @@ template = """あなたは猫のキャラクターとして振る舞うチャッ
 - 名前はクロです
 - 好物はかつおぶしです"""
 
-def process_audio(audio_file):
+# @storage_fn.on_object_finalized(secrets=[OPENAI_API_KEY3])
+def process_audio(audio_file, open_api_key, voicevox_url):
+    print("running process_audio")
+
+    client = OpenAI(api_key=open_api_key)
+
     # Initialize messages
     messages = [{"role": "system", "content": template}]
 
     # Convert speech to text
-    user_message = speech_to_text(audio_file)
+    user_message = speech_to_text(audio_file, open_api_key)
 
     # Skip processing if the text is empty
     if user_message == "":
@@ -40,6 +39,6 @@ def process_audio(audio_file):
     print("Chatbot's response: \n{}".format(bot_message))
 
     # Convert text to speech and get the audio data
-    bot_audio_data = text_to_speech(bot_message)
+    bot_audio_data = text_to_speech(bot_message, voicevox_url)
 
     return bot_audio_data
