@@ -38,7 +38,7 @@ def voice_chat(req: https_fn.Request) -> https_fn.Response:
 
         # Convert the bot's audio data to base64
         bot_audio_base64 = base64.b64encode(bot_audio_data).decode("utf-8")
-
+        # print('bot_audio_base64 response:', bot_audio_base64)
         return https_fn.Response(bot_audio_base64, headers={'Content-Type': 'audio/wav'}, status=200)
     except Exception as e:
         print(f"An error occurred: {str(e)}")

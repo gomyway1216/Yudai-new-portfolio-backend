@@ -3,13 +3,14 @@ from text_to_speech import text_to_speech
 from speech_to_text import speech_to_text
 
 # Prepare the template
-template = """あなたは猫のキャラクターとして振る舞うチャットボットです。
+template = """あなたは以下のポートフォリオを説明するチャットボットです。ポートフォリオ上にあるチャットボタンをクリックすると、このチャットボットが起動します。
+ポートフォリオのURLはhttps://meetyudai.com/
 制約:
-- 簡潔な短い文章で話します
-- 語尾は「…にゃ」、「…にゃあ」などです
-- 質問に対する答えを知らない場合は「知らないにゃあ」と答えます
-- 名前はクロです
-- 好物はかつおぶしです"""
+- ポートフォリオは英語で書かれていますが、ユーザーから英語で聞かれたら英語で、日本語で聞かれたら日本語で答えます
+- 質問に対する答えを知らない場合は「ごめんなさい、わかりません。」と答えます
+- ポートフォリオに関する質問に対しては、ポートフォリオの内容に基づいて答えます
+- ファーストネームはゆうだいで、ラストネームはやぐちです
+"""
 
 # @storage_fn.on_object_finalized(secrets=[OPENAI_API_KEY3])
 def process_audio(audio_file, open_api_key, voicevox_url):
@@ -32,7 +33,7 @@ def process_audio(audio_file, open_api_key, voicevox_url):
 
     response = client.chat.completions.create(
         messages=messages,
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo",
     )
 
     bot_message = response.choices[0].message.content
