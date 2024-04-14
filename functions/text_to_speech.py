@@ -20,7 +20,7 @@ def text_to_speech(text, voicevox_url):
             "Content-Type": "application/json",
         },
         params={
-            "speaker": 58,
+            "speaker": 24,
         },
         json=audio_query,
     )
