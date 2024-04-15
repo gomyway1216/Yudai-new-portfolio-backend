@@ -1,6 +1,8 @@
+from datetime import datetime
 from openai import OpenAI
 from text_to_speech import text_to_speech
 from speech_to_text import speech_to_text
+from google.cloud import firestore
 
 # Prepare the template
 template = """You are an agenet that helps a chunk of text into meaningful task list.
@@ -10,6 +12,9 @@ Constraints:
 """
 
 def process_audio(audio_file, open_api_key):
+    """
+    Process the audio file and return the chatbot's response.
+    """
     print("running process_audio")
 
     client = OpenAI(api_key=open_api_key)
@@ -33,7 +38,46 @@ def process_audio(audio_file, open_api_key):
     )
 
     bot_message = response.choices[0].message.content
+    print(type(bot_message))
+    save_task_to_database(bot_message)
     print("Chatbot's response: \n{}".format(bot_message))
 
     # return success response
     return bot_message
+
+
+def save_task_to_database(bot_message):
+    """
+    Save the tasks extracted from the chatbot's response to Firestore.
+    """
+
+    print('bot_message:', bot_message)
+    db = firestore.Client()
+
+    # Extract tasks from the chatbot's response
+    tasks = bot_message.strip().split("\n")
+
+    # Get the current date and time
+    current_date = datetime.now()
+
+    # Assume you have the user's document ID
+    user_doc_id = "aoUPpC4gz7QlvbMcpNH5"  # Replace with the actual user's document ID
+
+    # Iterate over each task and store it in Firestore
+    for task in tasks:
+        if task:
+            task_parts = task.split(".", 1)
+            if len(task_parts) == 2:
+                task_number = task_parts[0].strip()
+                task_name = task_parts[1].strip()
+
+                # Create a new document reference in the "tasks" collection
+                task_ref = db.collection("user").document(user_doc_id).collection("task").document()
+
+                # Set the task data in Firestore
+                task_ref.set({
+                    "name": task_name,
+                    "created_at": current_date
+                })
+
+    print("Tasks stored in Firestore successfully.")
