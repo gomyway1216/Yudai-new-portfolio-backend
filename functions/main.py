@@ -115,7 +115,7 @@ def get_incomplete_tasks(req: https_fn.Request) -> https_fn.Response:
 def create_task(req: https_fn.Request) -> https_fn.Response:
     """Add a task"""
     task.task.create_task(req.args.get('user_id'), req.args.get('task_data'))
-    return https_fn.Response("Task added", status=200)
+    return https_fn.Response('{"message": "Task created"}', status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
@@ -137,7 +137,7 @@ def mark_task_as_completed(req: https_fn.Request) -> https_fn.Response:
 def mark_task_as_incomplete(req: https_fn.Request) -> https_fn.Response:
     """Mark a task as incomplete"""
     task.task.mark_task_as_incomplete(req.args.get('user_id'), req.args.get('task_id'))
-    return https_fn.Response('{"message": "Task completed"}', headers={'Content-Type': 'application/json'}, status=200)
+    return https_fn.Response('{"message": "Task incomplete"}', headers={'Content-Type': 'application/json'}, status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
@@ -148,7 +148,7 @@ def mark_task_as_incomplete(req: https_fn.Request) -> https_fn.Response:
 def delete_task(req: https_fn.Request) -> https_fn.Response:
     """Delete a task"""
     task.task.delete_task(req.args.get('user_id'), req.args.get('task_id'))
-    return https_fn.Response("Task deleted", status=200)
+    return https_fn.Response('{"message": "Task removed"}', status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
@@ -181,7 +181,7 @@ def get_task(req: https_fn.Request) -> https_fn.Response:
 def update_task_name(req: https_fn.Request) -> https_fn.Response:
     """Update a task name"""
     task.task.update_task_name(req.args.get('user_id'), req.args.get('task_id'), req.args.get('task_name'))
-    return https_fn.Response("Task name updated", status=200)
+    return https_fn.Response('{"message": "Task name updated"}', status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
@@ -192,7 +192,7 @@ def update_task_name(req: https_fn.Request) -> https_fn.Response:
 def update_task(req: https_fn.Request) -> https_fn.Response:
     """Update a task"""
     task.task.update_task(req.args.get('user_id'), req.args.get('task_id'), req.args.get('task_data'))
-    return https_fn.Response("Task updated", status=200)
+    return https_fn.Response('{"message": "Task updated"}', status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
@@ -203,7 +203,7 @@ def update_task(req: https_fn.Request) -> https_fn.Response:
 def create_task_tag(req: https_fn.Request) -> https_fn.Response:
     """Create a task tag"""
     task.task.create_tag(req.args.get('user_id'), req.args.get('tag_name'))
-    return https_fn.Response("Tag created", status=200)
+    return https_fn.Response('{"message": "Task tag created"}', status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
@@ -225,7 +225,7 @@ def get_all_task_tags(req: https_fn.Request) -> https_fn.Response:
 def create_task_category(req: https_fn.Request) -> https_fn.Response:
     """Create a task category"""
     task.task.create_category(req.args.get('user_id'), req.args.get('category_name'))
-    return https_fn.Response("Category created", status=200)
+    return https_fn.Response('{"message": "Task category created"}', status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
