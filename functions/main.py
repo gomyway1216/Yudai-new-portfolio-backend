@@ -86,6 +86,7 @@ def voice_task(req: https_fn.Request) -> https_fn.Response:
 )
 def get_completed_tasks(req: https_fn.Request) -> https_fn.Response:
     """Get completed tasks"""
+    print('get_completed_tasks request received')
     tasks = task.task.get_completed_tasks(req.args.get('user_id'))
     tasks_json = json.dumps(tasks, default=str)
     print('tasks_json:', tasks_json)
@@ -99,6 +100,7 @@ def get_completed_tasks(req: https_fn.Request) -> https_fn.Response:
 )
 def get_incomplete_tasks(req: https_fn.Request) -> https_fn.Response:
     """Get incomplete tasks"""
+    print('get_incomplete_tasks request received')
     tasks = task.task.get_incomplete_tasks(req.args.get('user_id'))
     tasks_json = json.dumps(tasks, default=str)
     print('tasks_incomplete_json:', tasks_json)

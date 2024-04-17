@@ -40,7 +40,7 @@ def process_audio(audio_file, open_api_key):
     bot_message = response.choices[0].message.content
     print(type(bot_message))
     save_task_to_database(bot_message)
-    print("Chatbot's response: \n{}".format(bot_message))
+    print("Chatbot's response : \n{}".format(bot_message))
 
     # return success response
     return bot_message
