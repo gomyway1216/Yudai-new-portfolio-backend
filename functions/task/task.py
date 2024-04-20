@@ -3,6 +3,7 @@ from openai import OpenAI
 from text_to_speech import text_to_speech
 from speech_to_text import speech_to_text
 from google.cloud import firestore
+import json
 
 # Prepare the template
 template = """You are an agenet that helps a chunk of text into meaningful task list.
@@ -129,13 +130,26 @@ def create_task(user_doc_id, task_data):
     """
     db = firestore.Client()
 
+    print('task_data:', task_data)
+
     # Create a new document reference in the "tasks" collection
     task_ref = db.collection("user").document(user_doc_id).collection("task").document()
 
+    # Ensure task_data is a dictionary
+    if isinstance(task_data, str):
+        try:
+            task_data = json.loads(task_data)  # attempt to parse string to dictionary
+            task_data['completed'] = False
+        except json.JSONDecodeError:
+            print("Error: task_data is not a valid JSON string")
+            return
+
     # Set the task data in Firestore
     task_ref.set(task_data)
-
     print("Task created successfully.")
+
+    # Return the ID of the newly created task
+    return task_ref.id
 
 
 def mark_task_as_completed(user_doc_id, task_id):

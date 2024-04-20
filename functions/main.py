@@ -114,8 +114,8 @@ def get_incomplete_tasks(req: https_fn.Request) -> https_fn.Response:
 )
 def create_task(req: https_fn.Request) -> https_fn.Response:
     """Add a task"""
-    task.task.create_task(req.args.get('user_id'), req.args.get('task_data'))
-    return https_fn.Response('{"message": "Task created"}', status=200)
+    task_id = task.task.create_task(req.args.get('user_id'), req.args.get('task_data'))
+    return https_fn.Response(json.dumps({"task_id": task_id}), status=200)
 
 @https_fn.on_request(
     cors=options.CorsOptions(
