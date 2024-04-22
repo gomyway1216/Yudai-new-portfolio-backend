@@ -237,3 +237,40 @@ def get_all_task_categories(req: https_fn.Request) -> https_fn.Response:
     """Get all task categories"""
     categories = task.task.get_all_categories(req.args.get('user_id'))
     return https_fn.Response(categories, headers={'Content-Type': 'application/json'}, status=200)
+
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"http://localhost:3000", r"https://meetyudai\.com$"],
+        cors_methods=["GET", "POST"],
+    )
+)
+def create_task_list(req: https_fn.Request) -> https_fn.Response:
+    """Create a task list"""
+    task_id = task.task.create_task_list(req.args.get('user_id'), req.args.get('list_name'))
+    return https_fn.Response(json.dumps({"task_id": task_id}), status=200)
+
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"http://localhost:3000", r"https://meetyudai\.com$"],
+        cors_methods=["GET", "POST"],
+    )
+)
+def get_all_task_lists(req: https_fn.Request) -> https_fn.Response:
+    """Get all task lists"""
+    lists = task.task.get_all_task_lists(req.args.get('user_id'))
+    lists_json = json.dumps(lists, default=str)
+    print('lists_json:', lists_json)
+    return https_fn.Response(lists_json, headers={'Content-Type': 'application/json'}, status=200)
+
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"http://localhost:3000", r"https://meetyudai\.com$"],
+        cors_methods=["GET", "POST"],
+    )
+)
+def get_tasks_by_list(req: https_fn.Request) -> https_fn.Response:
+    """Get tasks by list"""
+    tasks = task.task.get_tasks_by_list(req.args.get('user_id'), req.args.get('list_id'))
+    tasks_json = json.dumps(tasks, default=str)
+    print('tasks_json:', tasks_json)
+    return https_fn.Response(tasks_json, headers={'Content-Type': 'application/json'}, status=200)

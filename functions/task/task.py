@@ -133,7 +133,7 @@ def create_task(user_doc_id, task_data):
     print('task_data:', task_data)
 
     # Create a new document reference in the "tasks" collection
-    task_ref = db.collection("user").document(user_doc_id).collection("task").document()
+    task_ref = db.collection("user").document(user_doc_id).collection("task_list").document("task")
 
     # Ensure task_data is a dictionary
     if isinstance(task_data, str):
@@ -150,6 +150,28 @@ def create_task(user_doc_id, task_data):
 
     # Return the ID of the newly created task
     return task_ref.id
+
+
+def create_task_list(user_doc_id, task_list_name):
+    """
+    Create a new task list for a user in Firestore.
+    """
+    db = firestore.Client()
+
+    # Create a new document reference in the "task_lists" collection
+    task_list_ref = db.collection("user").document(user_doc_id).collection("task_list").document()
+
+    # Set the task list data in Firestore
+    task_list_ref.set({
+        "name": task_list_name
+    })
+
+    print("Task list created successfully.")
+
+    return task_list_ref.id
+
+
+
 
 
 def mark_task_as_completed(user_doc_id, task_id):
@@ -523,3 +545,60 @@ def get_all_categories(user_doc_id):
 
     return categories
 
+def create_task_list(user_doc_id, task_list_name):
+    """
+    Create a new task list for a user in Firestore.
+    """
+    db = firestore.Client()
+
+    # Create a new document reference in the "task_lists" collection
+    task_list_ref = db.collection("user").document(user_doc_id).collection("task_list").document()
+
+    # Set the task list data in Firestore
+    task_list_ref.set({
+        "name": task_list_name
+    })
+
+    print("Task list created successfully.")
+
+    return task_list_ref.id
+
+def get_all_task_lists(user_doc_id):
+    """
+    Get all task lists for a user from Firestore.
+    """
+    db = firestore.Client()
+
+    # Get the user's document reference
+    user_ref = db.collection("user").document(user_doc_id)
+
+    # Get all task lists for the user
+    all_task_lists = user_ref.collection("task_list").stream()
+
+    task_lists = []
+    for task_list in all_task_lists:
+        task_list_data = task_list.to_dict()
+        task_list_data["id"] = task_list.id
+        task_lists.append(task_list_data)
+
+    return task_lists
+
+def get_tasks_by_list(user_doc_id, list_id):
+    """
+    Get the tasks from task_list for a user from Firestore.
+    """
+    db = firestore.Client()
+
+    # Get the task list's document reference
+    task_list_ref = db.collection("user").document(user_doc_id).collection("task_list").document(list_id)
+
+    # Get all tasks for the task list
+    all_tasks = task_list_ref.collection("task").stream()
+
+    tasks = []
+    for task in all_tasks:
+        task_data = task.to_dict()
+        task_data["id"] = task.id
+        tasks.append(task_data)
+
+    return tasks
