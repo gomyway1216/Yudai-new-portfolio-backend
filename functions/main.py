@@ -58,7 +58,15 @@ def voice_task(req: https_fn.Request) -> https_fn.Response:
     try:
         print('voice_task request received')
         audio_file = req.files['audio']
+        # user_id = req.files['user_id']
+        # list_id = req.files['list_id']
+        # user_id = "user_1"
+        # list_id = "list_1"
+        user_id = req.form['user_id']
+        list_id = req.form['list_id']
         open_api_key_1 = OPENAI_API_KEY.value
+        print('user_id:', user_id)
+        print('list_id:', list_id)
 
         if audio_file is None:
             return https_fn.Response("No audio data provided", status=400)
@@ -67,7 +75,7 @@ def voice_task(req: https_fn.Request) -> https_fn.Response:
         audio_file.save("input_voice_task.wav")
 
         # Process the audio using the process_audio function from task.task module
-        bot_message = task.task.process_audio("input_voice_task.wav", open_api_key_1)
+        bot_message = task.task.process_audio("input_voice_task.wav", open_api_key_1, user_id, list_id)
 
         if bot_message is None:
             return https_fn.Response("No response generated", status=400)
