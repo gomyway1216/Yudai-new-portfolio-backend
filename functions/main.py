@@ -86,10 +86,10 @@ def voice_task(req: https_fn.Request) -> https_fn.Response:
 )
 def get_completed_tasks(req: https_fn.Request) -> https_fn.Response:
     """Get completed tasks"""
-    print('get_completed_tasks request received')
-    tasks = task.task.get_completed_tasks(req.args.get('user_id'))
+    print('get_completed_tasks request received', req.args.get('user_id'), req.args.get('list_id'))
+    tasks = task.task.get_completed_tasks(req.args.get('user_id'), req.args.get('list_id'))
     tasks_json = json.dumps(tasks, default=str)
-    print('tasks_json:', tasks_json)
+    print('completed_tasks_json:', tasks_json)
     return https_fn.Response(tasks_json, headers={'Content-Type': 'application/json'}, status=200)
 
 @https_fn.on_request(
@@ -100,10 +100,10 @@ def get_completed_tasks(req: https_fn.Request) -> https_fn.Response:
 )
 def get_incomplete_tasks(req: https_fn.Request) -> https_fn.Response:
     """Get incomplete tasks"""
-    print('get_incomplete_tasks request received')
-    tasks = task.task.get_incomplete_tasks(req.args.get('user_id'))
+    print('get_incomplete_tasks request received', req.args.get('user_id'), req.args.get('list_id'))
+    tasks = task.task.get_incomplete_tasks(req.args.get('user_id'), req.args.get('list_id'))
     tasks_json = json.dumps(tasks, default=str)
-    print('tasks_incomplete_json:', tasks_json)
+    print('incomplete_tasks_json:', tasks_json)
     return https_fn.Response(tasks_json, headers={'Content-Type': 'application/json'}, status=200)
 
 @https_fn.on_request(
@@ -114,6 +114,10 @@ def get_incomplete_tasks(req: https_fn.Request) -> https_fn.Response:
 )
 def create_task(req: https_fn.Request) -> https_fn.Response:
     """Add a task"""
+    if req.args.get('task_data') is None:
+        return https_fn.Response('{"message": "Task data is required"}', status=400)
+    
+    print('create_task triggered: ', req.args.get('user_id'), req.args.get('task_data'))
     task_id = task.task.create_task(req.args.get('user_id'), req.args.get('task_data'))
     return https_fn.Response(json.dumps({"task_id": task_id}), status=200)
 
@@ -147,7 +151,7 @@ def mark_task_as_incomplete(req: https_fn.Request) -> https_fn.Response:
 )
 def delete_task(req: https_fn.Request) -> https_fn.Response:
     """Delete a task"""
-    task.task.delete_task(req.args.get('user_id'), req.args.get('task_id'))
+    task.task.delete_task(req.args.get('user_id'), req.args.get('list_id'), req.args.get('task_id'))
     return https_fn.Response('{"message": "Task removed"}', status=200)
 
 @https_fn.on_request(

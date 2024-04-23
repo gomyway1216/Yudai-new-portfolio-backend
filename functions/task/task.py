@@ -5,6 +5,19 @@ from speech_to_text import speech_to_text
 from google.cloud import firestore
 import json
 
+def get_task_collection_lef(user_id, task_list_id):
+    """
+    Get the tasks from task_list for a user from Firestore.
+    """
+    db = firestore.Client()
+
+    print('user_id:', user_id, 'task_list_id:', task_list_id)
+
+    if task_list_id == 'default':
+        return db.collection("user").document(user_id).collection("task")
+    else:
+        return db.collection("user").document(user_id).collection("task_list").document(task_list_id).collection("task")
+
 # Prepare the template
 template = """You are an agenet that helps a chunk of text into meaningful task list.
 User provide a single text that contains multiple tasks, and you need to extract each task and provide a list of tasks.
@@ -84,17 +97,12 @@ def save_task_to_database(bot_message):
 
     print("Tasks stored in Firestore successfully.")
 
-def get_completed_tasks(user_doc_id):
+def get_completed_tasks(user_doc_id, list_id):
     """
     Get the completed tasks for a user from Firestore.
     """
-    db = firestore.Client()
-
-    # Get the user's document reference
-    user_ref = db.collection("user").document(user_doc_id)
-
-    # Get the completed tasks for the user
-    completed_tasks = user_ref.collection("task").where("completed", "==", True).stream()
+    task_collection_lef = get_task_collection_lef(user_doc_id, list_id)
+    completed_tasks = task_collection_lef.where("completed", "==", True).stream()
 
     tasks = []
     for task in completed_tasks:
@@ -104,36 +112,24 @@ def get_completed_tasks(user_doc_id):
 
     return tasks
 
-def get_incomplete_tasks(user_doc_id):
+def get_incomplete_tasks(user_doc_id, list_id):
     """Get the incomplete tasks for a user from Firestore."""
-    db = firestore.Client()
-    # Get the user's document reference
-    user_ref = db.collection("user").document(user_doc_id)
-    
-    # Query for tasks where the "completed" field is not True or doesn't exist
-    incomplete_tasks = user_ref.collection("task").where("completed", "==", False).stream()
+    task_collection_lef = get_task_collection_lef(user_doc_id, list_id)
+    completed_tasks = task_collection_lef.where("completed", "==", False).stream()
 
-    # print('incomplete_tasks len:', len(incomplete_tasks) )
-    
     tasks = []
-    for task in incomplete_tasks:
-        print('task:', task.to_dict())
+    for task in completed_tasks:
         task_data = task.to_dict()
         task_data["id"] = task.id
         tasks.append(task_data)
-    
+
     return tasks
 
 def create_task(user_doc_id, task_data):
     """
     Create a new task for a user in Firestore.
     """
-    db = firestore.Client()
-
     print('task_data:', task_data)
-
-    # Create a new document reference in the "tasks" collection
-    task_ref = db.collection("user").document(user_doc_id).collection("task_list").document("task")
 
     # Ensure task_data is a dictionary
     if isinstance(task_data, str):
@@ -144,34 +140,26 @@ def create_task(user_doc_id, task_data):
             print("Error: task_data is not a valid JSON string")
             return
 
-    # Set the task data in Firestore
-    task_ref.set(task_data)
+    # Use listId to determine where to store the task
+    list_id = task_data.get('list_id')
+
+    if not list_id:
+        print("Error: list_id is required to create a task")
+        return
+
+    # Remove listId from the task_data before storing it
+    task_data_copy = task_data.copy()
+    task_data_copy.pop('list_id', None)  # Remove listId if it exists
+
+    print('task_data_copy:', task_data_copy)
+
+    collection_lef = get_task_collection_lef(user_doc_id, list_id)
+    task_ref = collection_lef.document()
+    task_ref.set(task_data_copy)
     print("Task created successfully.")
 
     # Return the ID of the newly created task
     return task_ref.id
-
-
-def create_task_list(user_doc_id, task_list_name):
-    """
-    Create a new task list for a user in Firestore.
-    """
-    db = firestore.Client()
-
-    # Create a new document reference in the "task_lists" collection
-    task_list_ref = db.collection("user").document(user_doc_id).collection("task_list").document()
-
-    # Set the task list data in Firestore
-    task_list_ref.set({
-        "name": task_list_name
-    })
-
-    print("Task list created successfully.")
-
-    return task_list_ref.id
-
-
-
 
 
 def mark_task_as_completed(user_doc_id, task_id):
@@ -206,14 +194,14 @@ def mark_task_as_incomplete(user_doc_id, task_id):
 
     print("Task marked as incomplete successfully.")
 
-def delete_task(user_doc_id, task_id):
+def delete_task(user_doc_id, list_id, task_id):
     """
     Delete a task for a user from Firestore.
     """
-    db = firestore.Client()
+    collection_lef = get_task_collection_lef(user_doc_id, list_id);
 
     # Get the task's document reference
-    task_ref = db.collection("user").document(user_doc_id).collection("task").document(task_id)
+    task_ref = collection_lef.document(task_id)
 
     # Delete the task
     task_ref.delete()
@@ -583,6 +571,7 @@ def get_all_task_lists(user_doc_id):
 
     return task_lists
 
+"""this method would not be used for now"""
 def get_tasks_by_list(user_doc_id, list_id):
     """
     Get the tasks from task_list for a user from Firestore.
