@@ -96,6 +96,7 @@ def save_task_to_database(bot_message, user_id, list_id):
                         "name": task_name,
                         "created_at": current_date,
                         "completed": False,
+                        "starred": False,
                     })
 
         print("Tasks stored in Firestore successfully.")
@@ -142,6 +143,7 @@ def create_task(user_doc_id, task_data):
         try:
             task_data = json.loads(task_data)  # attempt to parse string to dictionary
             task_data['completed'] = False
+            task_data['starred'] = False
         except json.JSONDecodeError:
             print("Error: task_data is not a valid JSON string")
             return
@@ -597,3 +599,67 @@ def get_tasks_by_list(user_doc_id, list_id):
         tasks.append(task_data)
 
     return tasks
+
+def star_task(user_doc_id, list_id, task_id):
+    """
+    Star a task for a user in Firestore.
+    """
+    collection_lef = get_task_collection_lef(user_doc_id, list_id)
+
+    # Get the task's document reference
+    task_ref = collection_lef.document(task_id)
+
+    # Update the task as starred
+    task_ref.update({
+        "starred": True
+    })
+
+    print("Task starred successfully.")
+
+
+def unstar_task(user_doc_id, list_id, task_id):
+    """
+    Unstar a task for a user in Firestore.
+    """
+    collection_lef = get_task_collection_lef(user_doc_id, list_id)
+
+    # Get the task's document reference
+    task_ref = collection_lef.document(task_id)
+
+    # Update the task as not starred
+    task_ref.update({
+        "starred": False
+    })
+
+    print("Task unstarred successfully.")
+
+def get_starred_tasks(user_doc_id):
+    """
+    Get the starred tasks for a user from the default task collection and all task list collections.
+    """
+    starred_tasks = []
+
+    # Retrieve starred tasks from the default task collection
+    default_task_collection = get_task_collection_lef(user_doc_id, "default")
+    default_starred_tasks = default_task_collection.where("starred", "==", True).stream()
+    for task in default_starred_tasks:
+        task_data = task.to_dict()
+        task_data["id"] = task.id
+        task_data["list_id"] = "default"
+        starred_tasks.append(task_data)
+
+    # Retrieve starred tasks from each task list collection
+    db = firestore.Client()
+    user_ref = db.collection("user").document(user_doc_id)
+    task_list_collections = user_ref.collection("task_list").list_documents()
+
+    for task_list_collection in task_list_collections:
+        task_collection = get_task_collection_lef(user_doc_id, task_list_collection.id)
+        starred_tasks_in_list = task_collection.where("starred", "==", True).stream()
+        for task in starred_tasks_in_list:
+            task_data = task.to_dict()
+            task_data["id"] = task.id
+            task_data["list_id"] = task_list_collection.id
+            starred_tasks.append(task_data)
+
+    return starred_tasks

@@ -286,3 +286,38 @@ def get_tasks_by_list(req: https_fn.Request) -> https_fn.Response:
     tasks_json = json.dumps(tasks, default=str)
     print('tasks_json:', tasks_json)
     return https_fn.Response(tasks_json, headers={'Content-Type': 'application/json'}, status=200)
+
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"http://localhost:3000", r"https://meetyudai\.com$"],
+        cors_methods=["GET", "POST"],
+    )
+)
+def star_task(req: https_fn.Request) -> https_fn.Response:
+    """Star a task"""
+    task.task.star_task(req.args.get('user_id'), req.args.get('list_id'), req.args.get('task_id'))
+    return https_fn.Response('{"message": "Task starred"}', status=200)
+
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"http://localhost:3000", r"https://meetyudai\.com$"],
+        cors_methods=["GET", "POST"],
+    )
+)
+def unstar_task(req: https_fn.Request) -> https_fn.Response:
+    """Unstar a task"""
+    task.task.unstar_task(req.args.get('user_id'), req.args.get('list_id'), req.args.get('task_id'))
+    return https_fn.Response('{"message": "Task unstarred"}', status=200)
+
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"http://localhost:3000", r"https://meetyudai\.com$"],
+        cors_methods=["GET", "POST"],
+    )
+)
+def get_starred_tasks(req: https_fn.Request) -> https_fn.Response:
+    """Get starred tasks"""
+    tasks = task.task.get_starred_tasks(req.args.get('user_id'))
+    tasks_json = json.dumps(tasks, default=str)
+    print('starred_tasks_json:', tasks_json)
+    return https_fn.Response(tasks_json, headers={'Content-Type': 'application/json'}, status=200)
