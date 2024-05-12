@@ -621,6 +621,7 @@ def unstar_task(user_doc_id, list_id, task_id):
     """
     Unstar a task for a user in Firestore.
     """
+    print('unstar_task:', user_doc_id, list_id, task_id)
     collection_lef = get_task_collection_lef(user_doc_id, list_id)
 
     # Get the task's document reference

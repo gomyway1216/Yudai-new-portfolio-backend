@@ -295,6 +295,10 @@ def get_tasks_by_list(req: https_fn.Request) -> https_fn.Response:
 )
 def star_task(req: https_fn.Request) -> https_fn.Response:
     """Star a task"""
+    log_request(req)
+    user_id = req.args.get('user_id')
+    print(f"User ID received: {user_id}")
+
     task.task.star_task(req.args.get('user_id'), req.args.get('list_id'), req.args.get('task_id'))
     return https_fn.Response('{"message": "Task starred"}', status=200)
 
@@ -306,6 +310,10 @@ def star_task(req: https_fn.Request) -> https_fn.Response:
 )
 def unstar_task(req: https_fn.Request) -> https_fn.Response:
     """Unstar a task"""
+    log_request(req)
+    user_id = req.args.get('user_id')
+    print(f"User ID received: {user_id}")
+
     task.task.unstar_task(req.args.get('user_id'), req.args.get('list_id'), req.args.get('task_id'))
     return https_fn.Response('{"message": "Task unstarred"}', status=200)
 
@@ -321,3 +329,11 @@ def get_starred_tasks(req: https_fn.Request) -> https_fn.Response:
     tasks_json = json.dumps(tasks, default=str)
     print('starred_tasks_json:', tasks_json)
     return https_fn.Response(tasks_json, headers={'Content-Type': 'application/json'}, status=200)
+
+
+def log_request(req):
+    """Log the request details"""
+    print(f"Request method: {req.method}")
+    print(f"Request URL: {req.url}")
+    print(f"Query Parameters: {req.args}")
+    print(f"Request Headers: {req.headers}")

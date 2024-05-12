@@ -1,9 +1,18 @@
-.env
+# Environment variables and local configurations
+.env*
+*.local
+
+venv/
+.functions/venv/
+**/__pycache__/
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
 
 .firebaserc
 
-/functions/__pycache__/*
 
-/functions/venv/*
-
-**.log
+# Ignore audio files
+*.wav
